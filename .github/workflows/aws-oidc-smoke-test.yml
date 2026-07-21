@@ -9,6 +9,7 @@ on:
     paths:
       - ".github/workflows/aws-oidc-smoke-test.yml"
 
+# AWS trust permits both legacy and immutable GitHub OIDC subjects.
 permissions:
   id-token: write
   contents: read
