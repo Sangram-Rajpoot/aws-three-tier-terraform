@@ -1,0 +1,32 @@
+name: Terraform CI
+
+on:
+  pull_request:
+    branches:
+      - main
+  push:
+    branches:
+      - main
+
+permissions:
+  contents: read
+
+jobs:
+  validate:
+    name: Validate Terraform and Application
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v6
+
+      - name: Install Terraform
+        uses: hashicorp/setup-terraform@v4
+        with:
+          terraform_version: 1.14.9
+          terraform_wrapper: false
+
+      - name: Run project validation
+        run: |
+          chmod +x scripts/validate.sh
+          ./scripts/validate.sh
