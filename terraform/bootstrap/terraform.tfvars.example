@@ -1,0 +1,3 @@
+project_name = "taskflow"
+aws_region   = "ap-south-1"
+bucket_name  = ""

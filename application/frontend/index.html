@@ -1,0 +1,119 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>TaskFlow Platform</title>
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <div class="shell">
+    <aside class="sidebar">
+      <div class="brand"><span class="brand-mark">TF</span><span>TaskFlow</span></div>
+      <nav>
+        <button class="nav-item active" data-view="dashboard">Dashboard</button>
+        <button class="nav-item" data-view="projects">Projects</button>
+        <button class="nav-item" data-view="tasks">Tasks</button>
+        <button class="nav-item" data-view="activity">Activity</button>
+      </nav>
+      <div class="environment-card">
+        <strong>Three-tier platform</strong>
+        <span>Web -> API -> MySQL</span>
+        <span id="healthStatus" class="health checking">Checking API</span>
+      </div>
+    </aside>
+
+    <main class="main">
+      <header class="topbar">
+        <div>
+          <p class="eyebrow">AWS HIGH-AVAILABILITY DEMO</p>
+          <h1 id="pageTitle">Operations dashboard</h1>
+        </div>
+        <div class="topbar-actions">
+          <button class="secondary" id="refreshButton">Refresh</button>
+          <button class="primary" id="newProjectButton">New project</button>
+        </div>
+      </header>
+
+      <section id="dashboardView" class="view active">
+        <div id="metrics" class="metrics"></div>
+        <div class="grid two-column">
+          <article class="panel">
+            <div class="panel-header"><div><p class="eyebrow">PORTFOLIO</p><h2>Projects</h2></div><button class="link-button" data-go="projects">View all</button></div>
+            <div id="dashboardProjects" class="card-list"></div>
+          </article>
+          <article class="panel">
+            <div class="panel-header"><div><p class="eyebrow">DELIVERY</p><h2>Priority tasks</h2></div><button class="link-button" data-go="tasks">View all</button></div>
+            <div id="dashboardTasks" class="table-wrap"></div>
+          </article>
+        </div>
+        <article class="panel">
+          <div class="panel-header"><div><p class="eyebrow">AUDIT TRAIL</p><h2>Recent activity</h2></div></div>
+          <div id="dashboardActivity" class="activity-list"></div>
+        </article>
+      </section>
+
+      <section id="projectsView" class="view">
+        <div class="toolbar">
+          <select id="projectStatusFilter">
+            <option value="">All project statuses</option>
+            <option value="planned">Planned</option>
+            <option value="active">Active</option>
+            <option value="blocked">Blocked</option>
+            <option value="completed">Completed</option>
+          </select>
+          <button class="primary" id="newProjectButtonInline">New project</button>
+        </div>
+        <div id="projectsGrid" class="project-grid"></div>
+      </section>
+
+      <section id="tasksView" class="view">
+        <div class="toolbar task-toolbar">
+          <input id="taskSearch" type="search" placeholder="Search tasks, descriptions, or assignees">
+          <select id="taskStatusFilter">
+            <option value="">All task statuses</option>
+            <option value="todo">To do</option>
+            <option value="in_progress">In progress</option>
+            <option value="review">Review</option>
+            <option value="done">Done</option>
+          </select>
+          <button class="primary" id="newTaskButton">New task</button>
+        </div>
+        <article class="panel"><div id="tasksTable" class="table-wrap"></div></article>
+      </section>
+
+      <section id="activityView" class="view">
+        <article class="panel"><div class="panel-header"><div><p class="eyebrow">SYSTEM HISTORY</p><h2>Activity stream</h2></div></div><div id="activityList" class="activity-list"></div></article>
+      </section>
+    </main>
+  </div>
+
+  <dialog id="projectDialog">
+    <form id="projectForm" method="dialog">
+      <div class="dialog-header"><div><p class="eyebrow">PROJECT</p><h2 id="projectDialogTitle">Create project</h2></div><button type="button" class="icon-button" data-close="projectDialog">x</button></div>
+      <input type="hidden" id="projectId">
+      <label>Name<input id="projectName" required maxlength="120"></label>
+      <label>Owner<input id="projectOwner" required maxlength="120"></label>
+      <label>Status<select id="projectStatus"><option value="planned">Planned</option><option value="active">Active</option><option value="blocked">Blocked</option><option value="completed">Completed</option></select></label>
+      <label>Description<textarea id="projectDescription" rows="4"></textarea></label>
+      <div class="dialog-actions"><button type="button" class="secondary" data-close="projectDialog">Cancel</button><button type="submit" class="primary">Save project</button></div>
+    </form>
+  </dialog>
+
+  <dialog id="taskDialog">
+    <form id="taskForm" method="dialog">
+      <div class="dialog-header"><div><p class="eyebrow">TASK</p><h2 id="taskDialogTitle">Create task</h2></div><button type="button" class="icon-button" data-close="taskDialog">x</button></div>
+      <input type="hidden" id="taskId">
+      <label>Project<select id="taskProject" required></select></label>
+      <label>Title<input id="taskTitle" required maxlength="180"></label>
+      <div class="form-grid"><label>Priority<select id="taskPriority"><option value="low">Low</option><option value="medium">Medium</option><option value="high">High</option><option value="critical">Critical</option></select></label><label>Status<select id="taskStatus"><option value="todo">To do</option><option value="in_progress">In progress</option><option value="review">Review</option><option value="done">Done</option></select></label></div>
+      <div class="form-grid"><label>Assignee<input id="taskAssignee" maxlength="120"></label><label>Due date<input id="taskDueDate" type="date"></label></div>
+      <label>Description<textarea id="taskDescription" rows="4"></textarea></label>
+      <div class="dialog-actions"><button type="button" class="secondary" data-close="taskDialog">Cancel</button><button type="submit" class="primary">Save task</button></div>
+    </form>
+  </dialog>
+
+  <div id="toast" class="toast"></div>
+  <script src="app.js"></script>
+</body>
+</html>

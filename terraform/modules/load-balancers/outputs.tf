@@ -1,0 +1,10 @@
+output "public_alb_arn" { value = aws_lb.public.arn }
+output "public_alb_arn_suffix" { value = aws_lb.public.arn_suffix }
+output "public_alb_dns_name" { value = aws_lb.public.dns_name }
+output "public_alb_zone_id" { value = aws_lb.public.zone_id }
+output "web_target_group_arn" { value = aws_lb_target_group.web.arn }
+output "web_target_group_arn_suffix" { value = aws_lb_target_group.web.arn_suffix }
+output "internal_alb_dns_name" { value = aws_lb.internal.dns_name }
+output "internal_alb_arn_suffix" { value = aws_lb.internal.arn_suffix }
+output "app_target_group_arn" { value = aws_lb_target_group.app.arn }
+output "app_target_group_arn_suffix" { value = aws_lb_target_group.app.arn_suffix }

@@ -1,0 +1,48 @@
+#!/bin/bash
+set -euxo pipefail
+exec > >(tee /var/log/user-data.log | logger -t user-data -s 2>/dev/console) 2>&1
+
+dnf install -y python3 python3-pip unzip
+id taskflow >/dev/null 2>&1 || useradd --system --home /opt/taskflow --shell /sbin/nologin taskflow
+mkdir -p /opt/taskflow
+aws s3 cp "s3://${artifact_bucket}/${artifact_key}" /tmp/backend.zip --region "${aws_region}"
+unzip -o /tmp/backend.zip -d /opt/taskflow
+curl -fsSL "https://truststore.pki.rds.amazonaws.com/global/global-bundle.pem" -o /opt/taskflow/global-bundle.pem
+python3 -m venv /opt/taskflow/venv
+/opt/taskflow/venv/bin/pip install --upgrade pip
+/opt/taskflow/venv/bin/pip install --no-cache-dir -r /opt/taskflow/requirements.txt
+chown -R taskflow:taskflow /opt/taskflow
+
+cat > /etc/systemd/system/taskflow.service <<'UNIT'
+[Unit]
+Description=TaskFlow application API
+After=network-online.target
+Wants=network-online.target
+
+[Service]
+Type=simple
+User=taskflow
+Group=taskflow
+WorkingDirectory=/opt/taskflow
+Environment=AWS_REGION=${aws_region}
+Environment=DB_SECRET_ARN=${database_secret}
+Environment=DB_HOST=${database_host}
+Environment=DB_PORT=${database_port}
+Environment=DB_NAME=${database_name}
+Environment=DB_SSL_CA=/opt/taskflow/global-bundle.pem
+Environment=APP_ENV=aws
+Environment=PYTHONUNBUFFERED=1
+ExecStart=/opt/taskflow/venv/bin/gunicorn --preload --bind 0.0.0.0:8000 --workers 3 --threads 2 --timeout 60 --access-logfile - --error-logfile - wsgi:app
+Restart=always
+RestartSec=5
+NoNewPrivileges=true
+PrivateTmp=true
+ProtectSystem=full
+
+[Install]
+WantedBy=multi-user.target
+UNIT
+
+echo "Artifact version: ${artifact_version}" > /etc/taskflow-release
+systemctl daemon-reload
+systemctl enable --now taskflow

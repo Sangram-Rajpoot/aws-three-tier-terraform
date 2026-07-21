@@ -1,0 +1,29 @@
+.terraform/
+*.tfstate
+*.tfstate.*
+*.tfplan
+crash.log
+*.zip
+.env
+__pycache__/
+*.pyc
+.DS_Store
+terraform.tfvars
+backend.tf
+
+# Local Terraform plans
+tfplan
+tfplan.txt
+
+# Sensitive local files
+*.pem
+*.key
+*accessKeys*.csv
+*credentials*.csv
+
+# Windows download metadata
+*:Zone.Identifier
+
+# Local backup files
+*.bak
+terraform/environments/*/terraform.tfvars.before-*
