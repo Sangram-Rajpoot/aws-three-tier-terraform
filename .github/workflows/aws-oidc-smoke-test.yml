@@ -1,0 +1,51 @@
+name: AWS OIDC Smoke Test
+
+on:
+  workflow_dispatch:
+
+  push:
+    branches:
+      - main
+    paths:
+      - ".github/workflows/aws-oidc-smoke-test.yml"
+
+permissions:
+  id-token: write
+  contents: read
+
+jobs:
+  oidc-test:
+    name: Assume AWS role using OIDC
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v6
+
+      - name: Configure temporary AWS credentials
+        uses: aws-actions/configure-aws-credentials@v6.1.0
+        with:
+          role-to-assume: arn:aws:iam::099107029297:role/taskflow-github-oidc-smoke
+          role-session-name: taskflow-oidc-${{ github.run_id }}
+          aws-region: ap-south-1
+          allowed-account-ids: "099107029297"
+
+      - name: Verify AWS identity
+        shell: bash
+        run: |
+          set -euo pipefail
+
+          ACCOUNT_ID=$(aws sts get-caller-identity \
+            --query Account \
+            --output text)
+
+          ROLE_ARN=$(aws sts get-caller-identity \
+            --query Arn \
+            --output text)
+
+          test "$ACCOUNT_ID" = "099107029297"
+
+          echo "Authenticated AWS account: $ACCOUNT_ID"
+          echo "Assumed identity: $ROLE_ARN"
+          echo "AWS OIDC authentication successful."
