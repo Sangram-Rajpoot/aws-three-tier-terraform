@@ -18,7 +18,7 @@ for environment in dev prod; do
 done
 
 if command -v docker >/dev/null 2>&1; then
-  docker-compose -f "$ROOT_DIR/application/docker-compose.yml" config >/dev/null
+  docker compose -f "$ROOT_DIR/application/docker-compose.yml" config >/dev/null
 fi
 
 echo "Static validation completed successfully."
