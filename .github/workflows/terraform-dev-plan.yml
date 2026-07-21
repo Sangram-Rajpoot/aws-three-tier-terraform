@@ -1,0 +1,145 @@
+name: Terraform Dev Plan
+
+on:
+  workflow_dispatch:
+
+  push:
+    branches:
+      - main
+    paths:
+      - "terraform/**"
+      - "application/**"
+      - ".github/workflows/terraform-dev-plan.yml"
+
+permissions:
+  id-token: write
+  contents: read
+
+concurrency:
+  group: terraform-dev-plan
+  cancel-in-progress: false
+
+env:
+  TF_IN_AUTOMATION: "true"
+  CHECKPOINT_DISABLE: "1"
+  AWS_REGION: ap-south-1
+  AWS_DEFAULT_REGION: ap-south-1
+
+jobs:
+  plan:
+    name: Plan dev infrastructure
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v6.0.2
+
+      - name: Install Terraform
+        uses: hashicorp/setup-terraform@v4.0.1
+        with:
+          terraform_version: 1.14.9
+          terraform_wrapper: false
+
+      - name: Configure temporary AWS credentials
+        uses: aws-actions/configure-aws-credentials@v6.1.1
+        with:
+          role-to-assume: arn:aws:iam::099107029297:role/taskflow-github-terraform-plan
+          role-session-name: taskflow-dev-plan-${{ github.run_id }}
+          aws-region: ap-south-1
+          allowed-account-ids: "099107029297"
+
+      - name: Verify AWS identity
+        shell: bash
+        run: |
+          set -euo pipefail
+
+          ACCOUNT_ID=$(aws sts get-caller-identity \
+            --query Account \
+            --output text)
+
+          test "$ACCOUNT_ID" = "099107029297"
+          echo "Authenticated to AWS account $ACCOUNT_ID"
+
+      - name: Create backend configuration
+        shell: bash
+        run: |
+          set -euo pipefail
+
+          cat > terraform/environments/dev/backend.tf <<'BACKEND'
+          terraform {
+            backend "s3" {
+              bucket       = "taskflow-terraform-state-4dd9ba6f"
+              key          = "three-tier/dev/terraform.tfstate"
+              region       = "ap-south-1"
+              encrypt      = true
+              use_lockfile = true
+            }
+          }
+          BACKEND
+
+      - name: Initialize Terraform
+        working-directory: terraform/environments/dev
+        shell: bash
+        run: |
+          set -euo pipefail
+          terraform init -input=false
+
+      - name: Run Terraform plan
+        id: plan
+        working-directory: terraform/environments/dev
+        shell: bash
+        run: |
+          set -uo pipefail
+
+          set +e
+          terraform plan \
+            -input=false \
+            -no-color \
+            -lock-timeout=5m \
+            -detailed-exitcode \
+            -var-file=dev.ci.tfvars \
+            | tee tfplan.txt
+
+          PLAN_EXIT=${PIPESTATUS[0]}
+          set -e
+
+          case "$PLAN_EXIT" in
+            0)
+              echo "changes=false" >> "$GITHUB_OUTPUT"
+              echo "Terraform found no infrastructure changes."
+              ;;
+            2)
+              echo "changes=true" >> "$GITHUB_OUTPUT"
+              echo "Terraform found proposed infrastructure changes."
+              ;;
+            *)
+              echo "Terraform plan failed with exit code $PLAN_EXIT."
+              exit "$PLAN_EXIT"
+              ;;
+          esac
+
+      - name: Write plan summary
+        if: always()
+        working-directory: terraform/environments/dev
+        shell: bash
+        run: |
+          {
+            echo "## Terraform Dev Plan"
+            echo
+            echo "- Commit: \`${GITHUB_SHA}\`"
+            echo "- AWS account: \`099107029297\`"
+            echo "- Region: \`ap-south-1\`"
+            echo
+            grep -E '^(Plan:|No changes\.)' tfplan.txt 2>/dev/null \
+              | tail -1 || echo "Plan summary unavailable."
+          } >> "$GITHUB_STEP_SUMMARY"
+
+      - name: Upload human-readable plan
+        if: always()
+        uses: actions/upload-artifact@v7.0.1
+        with:
+          name: terraform-dev-plan-${{ github.run_number }}
+          path: terraform/environments/dev/tfplan.txt
+          if-no-files-found: warn
+          retention-days: 7
