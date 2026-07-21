@@ -1,9 +1,12 @@
 name: Terraform CI
 
 on:
+  workflow_dispatch:
+
   pull_request:
     branches:
       - main
+
   push:
     branches:
       - main
@@ -11,22 +14,48 @@ on:
 permissions:
   contents: read
 
+concurrency:
+  group: terraform-ci-${{ github.ref }}
+  cancel-in-progress: true
+
+env:
+  TF_IN_AUTOMATION: "true"
+  CHECKPOINT_DISABLE: "1"
+
 jobs:
   validate:
-    name: Validate Terraform and Application
+    name: Validate Terraform and application
     runs-on: ubuntu-latest
+    timeout-minutes: 20
 
     steps:
       - name: Checkout repository
         uses: actions/checkout@v6
 
       - name: Install Terraform
-        uses: hashicorp/setup-terraform@v4
+        uses: hashicorp/setup-terraform@v3
         with:
           terraform_version: 1.14.9
           terraform_wrapper: false
 
-      - name: Run project validation
+      - name: Display tool versions
+        shell: bash
         run: |
+          set -euo pipefail
+          terraform version
+          python3 --version
+          node --version
+          docker --version
+
+          if docker compose version >/dev/null 2>&1; then
+            docker compose version
+          else
+            docker-compose --version
+          fi
+
+      - name: Run static validation
+        shell: bash
+        run: |
+          set -euo pipefail
           chmod +x scripts/validate.sh
           ./scripts/validate.sh
