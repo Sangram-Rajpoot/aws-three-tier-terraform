@@ -1,0 +1,51 @@
+name: Dev Apply Role OIDC Test
+
+on:
+  workflow_dispatch:
+
+permissions:
+  id-token: write
+  contents: read
+
+jobs:
+  oidc-test:
+    name: Verify dev apply role OIDC
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+
+    if: github.ref == 'refs/heads/main'
+
+    environment:
+      name: dev
+
+    steps:
+      - name: Assume Terraform apply role
+        uses: aws-actions/configure-aws-credentials@v6.1.1
+        with:
+          role-to-assume: arn:aws:iam::099107029297:role/taskflow-github-terraform-apply
+          aws-region: ap-south-1
+          role-session-name: github-dev-apply-oidc-test
+
+      - name: Verify assumed identity
+        shell: bash
+        run: |
+          set -euo pipefail
+
+          ACCOUNT="$(aws sts get-caller-identity --query Account --output text)"
+          ARN="$(aws sts get-caller-identity --query Arn --output text)"
+
+          test "$ACCOUNT" = "099107029297"
+
+          case "$ARN" in
+            arn:aws:sts::099107029297:assumed-role/taskflow-github-terraform-apply/*)
+              ;;
+            *)
+              echo "Unexpected assumed identity: $ARN"
+              exit 1
+              ;;
+          esac
+
+          echo "AWS account: $ACCOUNT"
+          echo "Assumed role verified successfully."
+          echo "No Terraform commands were executed."
+          echo "No infrastructure permissions are attached to this role."
