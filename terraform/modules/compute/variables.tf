@@ -1,5 +1,6 @@
 variable "name" { type = string }
 variable "aws_region" { type = string }
+variable "ami_id" { type = string }
 variable "web_subnet_ids" { type = list(string) }
 variable "app_subnet_ids" { type = list(string) }
 variable "web_security_group_id" { type = string }
