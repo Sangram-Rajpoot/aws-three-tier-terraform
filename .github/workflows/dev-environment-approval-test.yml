@@ -1,0 +1,24 @@
+name: Dev Environment Approval Test
+
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  approval-test:
+    name: Verify dev approval gate
+    runs-on: ubuntu-latest
+
+    environment:
+      name: dev
+
+    steps:
+      - name: Confirm approval gate passed
+        shell: bash
+        run: |
+          set -euo pipefail
+          echo "The dev environment approval gate passed successfully."
+          echo "No AWS credentials were requested."
+          echo "No infrastructure changes were performed."
