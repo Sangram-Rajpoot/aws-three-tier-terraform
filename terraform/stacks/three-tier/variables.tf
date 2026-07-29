@@ -13,6 +13,7 @@ variable "environment" {
   }
 }
 variable "aws_region" { type = string }
+variable "ami_id" { type = string }
 variable "vpc_cidr" { type = string }
 variable "availability_zones" { type = list(string) }
 variable "single_nat_gateway" { type = bool }

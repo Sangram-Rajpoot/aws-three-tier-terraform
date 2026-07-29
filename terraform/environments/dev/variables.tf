@@ -7,6 +7,12 @@ variable "aws_region" {
   type    = string
   default = "ap-south-1"
 }
+
+# Upgrade this AMI only through a reviewed infrastructure change.
+variable "ami_id" {
+  type    = string
+  default = "ami-0b8c9bfaf09f03048"
+}
 variable "dr_region" {
   type    = string
   default = "ap-southeast-1"

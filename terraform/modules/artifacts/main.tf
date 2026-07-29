@@ -6,14 +6,24 @@ data "archive_file" "frontend" {
   type        = "zip"
   source_dir  = var.frontend_source_dir
   output_path = "${path.root}/frontend-artifact.zip"
-  excludes    = ["Dockerfile", "nginx.local.conf", ".dockerignore"]
+  excludes = [
+    "Dockerfile",
+    "nginx.local.conf",
+    ".dockerignore",
+    "**/*:Zone.Identifier",
+  ]
 }
 
 data "archive_file" "backend" {
   type        = "zip"
   source_dir  = var.backend_source_dir
   output_path = "${path.root}/backend-artifact.zip"
-  excludes    = ["Dockerfile", ".dockerignore", "__pycache__"]
+  excludes = [
+    "Dockerfile",
+    ".dockerignore",
+    "__pycache__",
+    "**/*:Zone.Identifier",
+  ]
 }
 
 resource "aws_s3_bucket" "artifacts" {

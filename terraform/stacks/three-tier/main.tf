@@ -92,6 +92,7 @@ module "compute" {
 
   name                  = local.name
   aws_region            = var.aws_region
+  ami_id                = var.ami_id
   web_subnet_ids        = module.network.web_subnet_ids
   app_subnet_ids        = module.network.app_subnet_ids
   web_security_group_id = module.security.web_security_group_id

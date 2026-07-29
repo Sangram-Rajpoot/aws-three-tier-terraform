@@ -7,6 +7,11 @@ variable "aws_region" {
   type    = string
   default = "ap-south-1"
 }
+
+# Production deployments must provide an explicitly approved AMI.
+variable "ami_id" {
+  type = string
+}
 variable "dr_region" {
   type    = string
   default = "ap-southeast-1"

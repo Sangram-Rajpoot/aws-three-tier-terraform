@@ -1,7 +1,3 @@
-data "aws_ssm_parameter" "al2023_ami" {
-  name = "/aws/service/ami-amazon-linux-latest/al2023-ami-kernel-default-x86_64"
-}
-
 data "aws_iam_policy_document" "assume_ec2" {
   statement {
     actions = ["sts:AssumeRole"]
@@ -92,7 +88,7 @@ resource "aws_iam_instance_profile" "app" {
 
 resource "aws_launch_template" "web" {
   name_prefix   = "${var.name}-web-"
-  image_id      = data.aws_ssm_parameter.al2023_ami.value
+  image_id      = var.ami_id
   instance_type = var.web_instance_type
   user_data = base64encode(templatefile("${path.module}/templates/web-user-data.sh.tftpl", {
     aws_region       = var.aws_region
@@ -148,7 +144,7 @@ resource "aws_autoscaling_group" "web" {
 
   launch_template {
     id      = aws_launch_template.web.id
-    version = "$Latest"
+    version = tostring(aws_launch_template.web.latest_version)
   }
 
   instance_refresh {
@@ -182,7 +178,7 @@ resource "aws_autoscaling_policy" "web_cpu" {
 
 resource "aws_launch_template" "app" {
   name_prefix   = "${var.name}-app-"
-  image_id      = data.aws_ssm_parameter.al2023_ami.value
+  image_id      = var.ami_id
   instance_type = var.app_instance_type
   user_data = base64encode(templatefile("${path.module}/templates/app-user-data.sh.tftpl", {
     aws_region       = var.aws_region
