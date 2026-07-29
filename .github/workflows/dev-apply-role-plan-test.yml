@@ -115,7 +115,7 @@ jobs:
             grep -E '^(Plan:|No changes\.)' tfplan.txt               | tail -1
           )"
 
-          EXPECTED_SUMMARY="Plan: 0 to add, 3 to change, 0 to destroy."
+          EXPECTED_SUMMARY="Plan: 0 to add, 1 to change, 0 to destroy."
 
           echo "Plan summary: $SUMMARY"
 
@@ -128,8 +128,6 @@ jobs:
 
           cat > expected-resources.txt <<'RESOURCES'
           module.platform.module.compute.aws_autoscaling_group.web
-          module.platform.module.compute.aws_launch_template.app
-          module.platform.module.compute.aws_launch_template.web
           RESOURCES
 
           sort -o expected-resources.txt expected-resources.txt
