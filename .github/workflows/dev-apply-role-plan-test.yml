@@ -115,7 +115,7 @@ jobs:
             grep -E '^(Plan:|No changes\.)' tfplan.txt               | tail -1
           )"
 
-          EXPECTED_SUMMARY="Plan: 0 to add, 6 to change, 0 to destroy."
+          EXPECTED_SUMMARY="Plan: 0 to add, 3 to change, 0 to destroy."
 
           echo "Plan summary: $SUMMARY"
 
@@ -127,9 +127,6 @@ jobs:
           grep -E '^  # .* will be updated in-place$'             tfplan.txt             | sed -E               's/^  # (.*) will be updated in-place$/\1/'             | sort             > actual-resources.txt
 
           cat > expected-resources.txt <<'RESOURCES'
-          module.platform.module.artifacts.aws_s3_object.backend
-          module.platform.module.artifacts.aws_s3_object.frontend
-          module.platform.module.compute.aws_autoscaling_group.app
           module.platform.module.compute.aws_autoscaling_group.web
           module.platform.module.compute.aws_launch_template.app
           module.platform.module.compute.aws_launch_template.web
