@@ -48,4 +48,4 @@ jobs:
           echo "AWS account: $ACCOUNT"
           echo "Assumed role verified successfully."
           echo "No Terraform commands were executed."
-          echo "No infrastructure permissions are attached to this role."
+          echo "This workflow performed identity verification only."
