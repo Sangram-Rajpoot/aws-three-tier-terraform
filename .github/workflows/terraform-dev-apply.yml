@@ -165,8 +165,6 @@ jobs:
 
           expected = {
               "module.platform.module.compute.aws_autoscaling_group.web",
-              "module.platform.module.compute.aws_launch_template.app",
-              "module.platform.module.compute.aws_launch_template.web",
           }
 
           plan = json.loads(
@@ -230,7 +228,7 @@ jobs:
                   )
 
           print()
-          print("PASS: Exactly three reviewed resources will change.")
+          print("PASS: Exactly one reviewed resource will change.")
           print("PASS: Every resource action is update-only.")
           print("PASS: No create action is present.")
           print("PASS: No delete action is present.")
@@ -248,7 +246,7 @@ jobs:
               | tail -1
           )"
 
-          EXPECTED="Plan: 0 to add, 3 to change, 0 to destroy."
+          EXPECTED="Plan: 0 to add, 1 to change, 0 to destroy."
 
           echo "Plan summary: $PLAN_SUMMARY"
 
@@ -269,7 +267,7 @@ jobs:
             echo "\`$PLAN_SUMMARY\`"
             echo
             echo "Plan validation passed:"
-            echo "- Exact three reviewed resources"
+            echo "- Exact one reviewed resource"
             echo "- Update-only actions"
             echo "- No create, delete, or replacement"
           } >> "$GITHUB_STEP_SUMMARY"
