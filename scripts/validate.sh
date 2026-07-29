@@ -17,8 +17,14 @@ for environment in dev prod; do
   terraform -chdir="$ROOT_DIR/terraform/environments/$environment" validate
 done
 
-if command -v docker >/dev/null 2>&1; then
-  docker compose -f "$ROOT_DIR/application/docker-compose.yml" config >/dev/null
+if docker compose version >/dev/null 2>&1; then
+  echo "Validating Docker Compose configuration with docker compose."
+  docker compose     -f "$ROOT_DIR/application/docker-compose.yml"     config >/dev/null
+elif command -v docker-compose >/dev/null 2>&1; then
+  echo "Validating Docker Compose configuration with docker-compose."
+  docker-compose     -f "$ROOT_DIR/application/docker-compose.yml"     config >/dev/null
+else
+  echo "Docker Compose is unavailable; skipping Compose config validation."
 fi
 
 echo "Static validation completed successfully."

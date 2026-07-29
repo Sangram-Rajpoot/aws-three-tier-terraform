@@ -9,6 +9,7 @@ module "platform" {
   project_name                   = var.project_name
   environment                    = var.environment
   aws_region                     = var.aws_region
+  ami_id                         = var.ami_id
   vpc_cidr                       = var.vpc_cidr
   availability_zones             = slice(data.aws_availability_zones.available.names, 0, 2)
   single_nat_gateway             = var.single_nat_gateway
