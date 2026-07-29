@@ -164,9 +164,6 @@ jobs:
           from pathlib import Path
 
           expected = {
-              "module.platform.module.artifacts.aws_s3_object.backend",
-              "module.platform.module.artifacts.aws_s3_object.frontend",
-              "module.platform.module.compute.aws_autoscaling_group.app",
               "module.platform.module.compute.aws_autoscaling_group.web",
               "module.platform.module.compute.aws_launch_template.app",
               "module.platform.module.compute.aws_launch_template.web",
@@ -233,7 +230,7 @@ jobs:
                   )
 
           print()
-          print("PASS: Exactly six reviewed resources will change.")
+          print("PASS: Exactly three reviewed resources will change.")
           print("PASS: Every resource action is update-only.")
           print("PASS: No create action is present.")
           print("PASS: No delete action is present.")
@@ -251,7 +248,7 @@ jobs:
               | tail -1
           )"
 
-          EXPECTED="Plan: 0 to add, 6 to change, 0 to destroy."
+          EXPECTED="Plan: 0 to add, 3 to change, 0 to destroy."
 
           echo "Plan summary: $PLAN_SUMMARY"
 
@@ -272,7 +269,7 @@ jobs:
             echo "\`$PLAN_SUMMARY\`"
             echo
             echo "Plan validation passed:"
-            echo "- Exact six reviewed resources"
+            echo "- Exact three reviewed resources"
             echo "- Update-only actions"
             echo "- No create, delete, or replacement"
           } >> "$GITHUB_STEP_SUMMARY"
