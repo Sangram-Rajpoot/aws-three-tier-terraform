@@ -20,7 +20,7 @@ jobs:
 
     steps:
       - name: Assume Terraform apply role
-        uses: aws-actions/configure-aws-credentials@v6.1.1
+        uses: aws-actions/configure-aws-credentials@d979d5b3a71173a29b74b5b88418bfda9437d885 # v6.1.1
         with:
           role-to-assume: arn:aws:iam::099107029297:role/taskflow-github-terraform-apply
           aws-region: ap-south-1
